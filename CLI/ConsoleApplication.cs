@@ -1,4 +1,5 @@
 using CLI.Handlers;
+using CLI.Services;
 using CLI.Terminal;
 using Spectre.Console;
 
@@ -7,12 +8,12 @@ namespace CLI;
 public class ConsoleApplication
 {
     private readonly ConsoleInput _consoleInput;
-    private readonly GetHandler _getHandler;
+    private readonly HttpRequestService _requestService;
     
-    public ConsoleApplication(ConsoleInput input, GetHandler getHandler)
+    public ConsoleApplication(ConsoleInput input, HttpRequestService requestService)
     {
         _consoleInput = input;
-        _getHandler = getHandler;
+        _requestService = requestService;
     }
     
     public async Task RunAsync()
@@ -28,19 +29,7 @@ public class ConsoleApplication
                 if (url != null) break;
                 url = _consoleInput.ParseRequest();
             }
-            switch (method)
-            {
-                case "GET" :
-                {
-                    using HttpResponseMessage result = await _getHandler.GetAsync(url);
-                    AnsiConsole.MarkupLine($"[green]{result.StatusCode}[/]");
-                    AnsiConsole.MarkupLine($"[green]{result.RequestMessage}[/]");
-                    break;
-                }
-                default:
-                    Console.WriteLine("Invalid request type");
-                    break;
-            }
+            await _requestService.ProcessRequest(method, url);
         }
     }
 }
