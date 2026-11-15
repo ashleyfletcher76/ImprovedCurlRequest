@@ -11,9 +11,5 @@ public class GetHandler
         _client = client;
     }
 
-    public async Task<HttpResponseMessage> GetAsync(Uri uri)
-    {
-        var result = await _client.GetAsync(uri);
-        return result;
-    }
+    public async Task<HttpResponseMessage> GetAsync(Uri uri) => await _client.GetAsync(uri);
 }
