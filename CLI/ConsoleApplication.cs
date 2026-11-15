@@ -1,5 +1,6 @@
 using CLI.Handlers;
 using CLI.Terminal;
+using Spectre.Console;
 
 namespace CLI;
 
@@ -20,13 +21,22 @@ public class ConsoleApplication
         {
             string method = _consoleInput.ReadMethod();
 
-            Uri url = _consoleInput.ParseRequest();
+            Uri? url = _consoleInput.ParseRequest();
+            while (url == null)
+            {
+                AnsiConsole.MarkupLine("[red]Invalid URL[/]");
+                if (url != null) break;
+                url = _consoleInput.ParseRequest();
+            }
             switch (method)
             {
                 case "GET" :
-                    string result = await _getHandler.GetAsync(url);
-                    Console.WriteLine(result);
+                {
+                    using HttpResponseMessage result = await _getHandler.GetAsync(url);
+                    AnsiConsole.MarkupLine($"[green]{result.StatusCode}[/]");
+                    AnsiConsole.MarkupLine($"[green]{result.RequestMessage}[/]");
                     break;
+                }
                 default:
                     Console.WriteLine("Invalid request type");
                     break;

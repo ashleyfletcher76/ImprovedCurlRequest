@@ -16,13 +16,14 @@ public class ConsoleInput
         return userInput;
     }
     
-    public Uri ParseRequest()
+    public Uri? ParseRequest()
     {
         var userInput = AnsiConsole.Ask<string>("Enter URL: ");
-        return ValidateUrl(userInput);
+        Uri? url =  ValidateUrl(userInput);
+        return url == null ? null : url;
     }
     
-    private Uri ValidateUrl(string url)
+    private Uri? ValidateUrl(string url)
     {
         if (Uri.TryCreate(url, UriKind.Absolute, out var uri) 
             && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
@@ -30,6 +31,6 @@ public class ConsoleInput
             return uri;
         }
 
-        throw new ArgumentException("Invalid URL");
+        return null;
     }
 }
