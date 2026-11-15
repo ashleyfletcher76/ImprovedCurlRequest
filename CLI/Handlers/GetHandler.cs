@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace CLI.Handlers;
 
 public class GetHandler
@@ -9,12 +11,17 @@ public class GetHandler
         _client = client;
     }
 
-    public async Task<string> GetAsync(string uri)
+    public async Task<string> GetAsync(Uri uri)
     {
         var result = await _client.GetAsync(uri);
-        if (!result.IsSuccessStatusCode)
+        switch (result.StatusCode)
         {
-            throw new HttpRequestException($"Error occurred while fetching data from {uri}");
+            case HttpStatusCode.OK:
+                break;
+            case HttpStatusCode.NotFound:
+                throw new HttpRequestException($"Resource not found at {uri}");
+            default:
+                throw new HttpRequestException($"Unexpected status code: {result.StatusCode}");
         }
         return await result.Content.ReadAsStringAsync();
     }

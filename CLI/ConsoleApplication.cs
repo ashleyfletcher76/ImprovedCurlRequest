@@ -1,45 +1,36 @@
 using CLI.Handlers;
 using CLI.Terminal;
-using CLI.Services;
 
 namespace CLI;
 
 public class ConsoleApplication
 {
-    private readonly HttpRequestService _httpRequestService;
     private readonly ConsoleInput _consoleInput;
     private readonly GetHandler _getHandler;
     
-    public ConsoleApplication(HttpRequestService httpRequestService, ConsoleInput input, GetHandler getHandler)
+    public ConsoleApplication(ConsoleInput input, GetHandler getHandler)
     {
-        _httpRequestService = httpRequestService;
         _consoleInput = input;
         _getHandler = getHandler;
     }
     
-    public void RunAsync()
+    public async Task RunAsync()
     {
         while (true)
         {
-            string? url = _consoleInput.ReadUserRequest();
-            if (string.IsNullOrWhiteSpace(url))
-            {
-                Console.WriteLine("Valid URL required");
-                continue;
-            }
+            string method = _consoleInput.ReadMethod();
 
-            string method = _httpRequestService.ParseRequest(url);
+            Uri url = _consoleInput.ParseRequest();
             switch (method)
             {
                 case "GET" :
-                    string result = _getHandler.GetAsync(url).Result;
+                    string result = await _getHandler.GetAsync(url);
                     Console.WriteLine(result);
                     break;
                 default:
                     Console.WriteLine("Invalid request type");
                     break;
             }
-
         }
     }
 }

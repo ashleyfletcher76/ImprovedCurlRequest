@@ -4,20 +4,32 @@ namespace CLI.Terminal;
 
 public class ConsoleInput
 {
-    public string? ReadUserRequest()
+    public string ReadMethod()
     {
-        var read = AnsiConsole.Ask<string>("Enter URL: ");
-        if (string.IsNullOrWhiteSpace(read) || !ValidateUrl(read))
+        var userInput = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Choose a [red]method.[/]")
+                .PageSize(10)
+                .AddChoices("GET")
+        );
+
+        return userInput;
+    }
+    
+    public Uri ParseRequest()
+    {
+        var userInput = AnsiConsole.Ask<string>("Enter URL: ");
+        return ValidateUrl(userInput);
+    }
+    
+    private Uri ValidateUrl(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) 
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
         {
-            return null;
+            return uri;
         }
 
-        return read;
-    }
-
-    private bool ValidateUrl(string url)
-    {
-        return Uri.TryCreate(url, UriKind.Absolute, out var uri) 
-               && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+        throw new ArgumentException("Invalid URL");
     }
 }

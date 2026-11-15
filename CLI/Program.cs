@@ -1,5 +1,4 @@
 ﻿using CLI.Handlers;
-using CLI.Services;
 using CLI.Terminal;
 
 namespace CLI;
@@ -10,10 +9,9 @@ class Program
     {
         HttpClient client = new HttpClient();
         GetHandler getHandler = new GetHandler(client);
-        HttpRequestService requestService = new HttpRequestService();
         ConsoleInput consoleInput = new ConsoleInput();
         
-        ConsoleApplication app = new ConsoleApplication(requestService, consoleInput, getHandler);
-        app.RunAsync();
+        ConsoleApplication app = new ConsoleApplication(consoleInput, getHandler);
+        app.RunAsync().Wait();
     }
 }
